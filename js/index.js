@@ -1,44 +1,44 @@
 class repos {
-	constructor(title="no tittle" ,des = "no description", status=null, link=null) {
-	  this.title = title; 
-	  this.link = link;  
-	  this.description = des;
-	  this.status = status; 
+	constructor(title = "no tittle", des = "no description", status = null, link = null) {
+		this.title = title;
+		this.link = link;
+		this.description = des;
+		this.status = status;
 	}
-  }
+}
 
-  Vue.component('sign-up', {
-	props:["name"], 
-	data: function () { 
+Vue.component('sign-up', {
+	props: ["name"],
+	data: function () {
 		return {
-		loginTest: "",
-		img:"https://avatars.githubusercontent.com/u/9919?v=4",
-		followers:"",
-		following:""
+			loginTest: "",
+			img: "https://avatars.githubusercontent.com/u/9919?v=4",
+			followers: "",
+			following: ""
 		}
-	 },
-	 methods:{
+	},
+	methods: {
 		userLogin: function (user) {
 			this.login = user
-			localStorage.setItem('login',user)  
-		  },
-		  login:function (loginTest) {  					
+			localStorage.setItem('login', user)
+		},
+		login: function (loginTest) {
 			localStorage.setItem("login", this.loginTest);
-			app.loged(this.loginTest); 
-			app.loaded = true;  
-		} 
-	 },
-	 watch:{
-		loginTest: function (param) { 
-			$.get(`https://api.github.com/users/${this.loginTest}`, (data) => {    
-					this.img = data.avatar_url
-					this.following = data.following
-					this.followers = data.followers
-				});     
-	
-		  }	
-	 },
-	 
+			app.loged(this.loginTest);
+			app.loaded = true;
+		}
+	},
+	watch: {
+		loginTest: function (param) {
+			$.get(`https://api.github.com/users/${this.loginTest}`, (data) => {
+				this.img = data.avatar_url
+				this.following = data.following
+				this.followers = data.followers
+			});
+
+		}
+	},
+
 	template: ` 
 	<div class="">
 	   <img :src="img" class="h-10 w-10 m-auto object-cover rounded-full box-content border-2 border-gray-400" id="accountImgfound">
@@ -54,78 +54,77 @@ class repos {
 	 </button>   
 	</div> 
 	`
-  })
+})
 
 const app = new Vue({
 	el: "#app",
 	data: {
-		config: {}, 
-		login: localStorage.getItem('login')||null,   
-        loaded: false,
+		config: {},
+		login: localStorage.getItem('login') || null,
+		loaded: false,
 		readme: false,
-		showUserMenu: false, 
-		cardView:true,  
+		showUserMenu: false,
+		cardView: true,
 		showSideBar: false,
 		showSearch: false,
-		readmefile:"",
+		readmefile: "",
 		user: {},
 		repos: {},
-		cardContent: [] 
+		cardContent: []
 
 	},
 	methods: {
 		getData: function () {
-			$.get("config.json",(data)=>{  
-				this.config = data;  
+			$.get("config.json", (data) => {
+				this.config = data;
 			});
-			if (this.login != null){ 
-			$.get(`https://api.github.com/users/${this.login}`, (data) => {    
-				this.user = data	
-			});  
-		   } 
+			if (this.login != null) {
+				$.get(`https://api.github.com/users/${this.login}`, (data) => {
+					this.user = data
+				});
+			}
 		},
 		getRepo: function () {
-			$.get(`https://api.github.com/users/${this.login}/repos`, (data) => { 
-				this.repos = data; 
-			}); 
+			$.get(`https://api.github.com/users/${this.login}/repos`, (data) => {
+				this.repos = data;
+			});
 		},
-		showReadme: function (index) {  
-			$.get(`https://raw.githubusercontent.com/${this.login}/${this.repos[index].name}/${this.repos[index].default_branch}/README.md`, (data) => {  
-				 this.readme = true;
-				  this.readmefile = data;   
-			});                 
-		  },
-		unavailable: function(){
-			alert('you cannot use this feature'); 
+		showReadme: function (index) {
+			$.get(`https://raw.githubusercontent.com/${this.login}/${this.repos[index].name}/${this.repos[index].default_branch}/README.md`, (data) => {
+				this.readme = true;
+				this.readmefile = data;
+			});
 		},
-		loged: function (data) { 
+		unavailable: function () {
+			alert('you cannot use this feature');
+		},
+		loged: function (data) {
 			this.login = data;
 			this.getRepo()
 			this.getData()
-		 },
-		 logout: function(){ 
-			 localStorage.removeItem('login')
-			 this.login= false;  
-			 this.showUserMenu = false;
-			 this.loaded = false;		 
-		 }
+		},
+		logout: function () {
+			localStorage.removeItem('login')
+			this.login = false;
+			this.showUserMenu = false;
+			this.loaded = false;
+		}
 	},
-	watch:{
+	watch: {
 		repos: function () {
 			this.repos.forEach(rep => {
-			this.cardContent.push(new repos(rep.name, rep.description))	
+				this.cardContent.push(new repos(rep.name, rep.description))
 			});
-         setTimeout(() => {
-		   this.loaded = true;  			 
-		 }, this.config.loadTime); 
+			setTimeout(() => {
+				this.loaded = true;
+			}, this.config.loadTime);
 		},
-		},
+	},
 	mounted: function () {
-		this.$nextTick(function () { 
-		  app.getData();   
-		  if (this.login) this.getRepo() 	
+		this.$nextTick(function () {
+			app.getData();
+			if (this.login) this.getRepo()
 		})
-	  }
+	}
 });
-feather.replace(); 
-  
+feather.replace();
