@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.4.6/tailwind.min.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <title>github view</title>
+</head>
+
+<body class="bg-grey-800">
+  <div id="app" :class="!cardView?'h-screen':'h-full'"
+    class="flex flex-col-reverse antialiased bg-gray-800 text-gray-500 sm:flex-row">
+    <div V-if="!loaded" class="w-screen h-screen bg-gray-800 fixed flex  z-50">
+      <div class="loader w-auto p-5 bg-gray-600 m-auto rounded-md text-center">
+        <img v-show="login" class="m-auto" src="./icons/puff.svg" alt="loading...">
+        <sign-up v-show="!login"></sign-up>
+      </div>
+    </div>
+
+    <div v-if="readme" id="readme_append"
+      class="w-full h-screen p-4 bg-gray-600 overflow-hidden fixed flex justify-center text-white  z-50">
+      <div class="w-full h-full overflow-scroll">
+        <i @click="readme=false" data-feather="x" class="h-8 w-8  top-0 right-0 fixed">close</i>
+        {{readmefile }}
+      </div>
+    </div>
+    <aside>
+      <nav>
+        <ul class="flex items-center sm:flex-col sm:items-stretch">
+          <li class="flex-1">
+            <a href="#" @click.prevent="cardView = true"
+              class="flex flex-col items-center font-semibold tracking-wide px-5 pt-1 hover:text-gray-200 sm:py-3">
+              <i data-feather="home" class="h-6 w-6"></i>
+              <span class="sm:hidden lg:block">Dashboard</span>
+            </a>
+          </li>
+          <li class="flex-1">
+            <a href="#" @click.prevent="cardView = false"
+              class="flex flex-col items-center font-semibold tracking-wide px-5 pt-1 hover:text-gray-200 sm:py-3">
+              <i data-feather="settings" class="h-6 w-6"></i>
+              <span class="sm:hidden lg:block">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="flex-auto">
+      <form v-show="showSearch" v-show="showSearch" class="mb-4 flex w-full">
+        <input type="text" placeholder="Search..." class="-mr-8 px-5 py-3 w-full shadow-sm tracking-wide font-semibold">
+        <button type="button" @click="showSearch = false">
+          <i data-feather="x" class="h-5 w-5"></i>
+        </button>
+      </form>
+      <header v-show="!showSearch" class="px-5 py-3 flex justify-between items-center">
+        <div>Github viewer</div>
+        <nav class="flex justify-around items-center">
+          <div class="mr-2 pr-2 flex items-center border-r border-gray-400 sm:mr-4 sm:pr-4">
+            <button @click="showSearch = true" class="mr-2">
+              <i data-feather="search" class="h-5 w-5"></i>
+            </button>
+            <button class="relative">
+              <i data-feather="bell" class="h-5 w-5"></i>
+              <span class="p-1 absolute top-0 rounded-full text-xs shadow-sm bg-red-500 text-white"></span>
+            </button>
+          </div>
+          <div class="relative">
+            <button @click="showUserMenu = !showUserMenu" class="flex items-center">
+              <span id="username" class="mr-2 font-semibold hidden sm:block">{{user.login}}</span>
+              <img :src="user.avatar_url" :alt="user.login"
+                class="h-8 w-8 object-cover rounded-full box-content border-2 border-gray-400">
+            </button>
+            <div v-show="showUserMenu"
+              class="w-40 overflow-hidden z-40 absolute right-0 rounded-md shadow-md bg-gray-800">
+              <a href="#" class="block px-4 py-2 hover:bg-gray-600 hover:text-gray-100">Account Settings</a>
+              <a href="https://github.com/bethropolis/github-viewer"
+                class="block px-4 py-2 hover:bg-gray-600 hover:text-gray-100">github</a>
+              <a @click.prevent="logout" class="block px-4 py-2 hover:bg-gray-600 hover:text-gray-100">Log out</a>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <main class="px-5 py-3">
+
+        <section class="">
+          <h1 class="text-2xl tracking-wider font-semibold text-gray-700">Overview</h1>
+          <main v-show="cardView" class="flex flex-col flex-wrap sm:flex-row">
+
+            <article id="card" v-for="(repo,index) in repos"
+              class="group my-2 hover:bg-gray-600 bg-gray-700 px-6 relative py-8 flex-auto rounded-md shadow-md sm:w-1/4 sm:mr-2">
+              <h1 class="text-3xl	font-mono group-hover:text-gray-900">{{repo.name}}</h1>
+              <p class="p-3 text-gray-100 group-hover:text-gray-500">{{repo.description||'no description'}}</p>
+              <div class="flex flex-row justify-around p-3 w-full absolute bottom-0 flex-1">
+                <img @click="showReadme(index)" src="./icons/eye.svg" @click="showReadme(index)" class="h-5 w-5" alt="">
+                <a :href="repo.html_url"><img src="./icons/github.svg" class="h-5 w-5" alt=""></a>
+              </div>
+            </article>
+          </main>
+          <main v-show="!cardView">
+            <div class="w-full flex justify-start my-8">
+              <label for="" class="font-mono">load screen time:</label>
+              <input type="number" class="text-center text-gray-900" :value="config.loadTime">
+              <i data-feather="check" class="h-5 w-5 ml-8"></i>
+            </div>
+
+            <div class="w-full flex justify-start my-8">
+              <label for="" class="font-mono">version:</label>
+              <input @click="unavailable" type="text" class="text-center text-gray-900" :value="config.version"
+                readonly>
+              <button @click="unavailable" class="ml-8">check update</button>
+            </div>
+
+            <div class="w-full flex justify-start my-8">
+              <label for="" class="font-mono">auto-update:</label>
+              <select @click="unavailable" name="" id="" :value="config.autoUpdate" class="ml-2 text-gray-900">
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+              <i data-feather="check" class="h-5 w-5 ml-8"></i>
+            </div>
+          </main>
+        </section>
+      </main>
+    </section>
+  </div>
+  <script type="text/javascript" src="js/index.js"></script>
+</body>
+
+</html>

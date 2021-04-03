@@ -1,0 +1,25 @@
+{
+  "name": "github-viewer",
+  "version": "1.0.0",
+  "description": "github repo-view",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "nodemon server/index.js" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bethropolis/github-viewer.git"
+  },
+  "author": "bethropolis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bethropolis/github-viewer/issues"
+  },
+  "homepage": "https://github.com/bethropolis/github-viewer#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
